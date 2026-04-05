@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Sync upstream
-        uses: aormsby/Fork-Sync-With-Upstream-action@v3.5
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
         with:
           upstream_sync_repo: cmliu/edgetunnel
           upstream_sync_branch: main
