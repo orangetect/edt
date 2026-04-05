@@ -5,8 +5,8 @@ permissions:
 
 on:
   schedule:
-    - cron: "0 0 * * *"   # 每天自动执行
-  workflow_dispatch:       # 支持手动触发
+    - cron: "0 0 * * *"   # 每天自动同步
+  workflow_dispatch:       # 手动触发
 
 jobs:
   sync_and_deploy:
@@ -14,20 +14,20 @@ jobs:
     if: ${{ github.event.repository.fork }}
 
     steps:
-      # 1️⃣ 拉代码
+      # 1️⃣ 拉取仓库
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2️⃣ 同步上游
+      # 2️⃣ 同步上游仓库
       - name: Sync upstream
         uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
         with:
           upstream_sync_repo: cmliu/edgetunnel
           upstream_sync_branch: main
           target_sync_branch: main
-          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          target_repo_token: ${{ secrets.GH_PAT }}   # 🔥 必须用 PAT
 
-      # 3️⃣ 🔥 强制触发 Cloudflare Pages 部署（关键）
+      # 3️⃣ 🔥 强制触发 Cloudflare Pages 部署（关键步骤）
       - name: Force Cloudflare Pages Deploy
         run: |
           echo "deploy $(date)" > deploy-trigger.txt
@@ -35,4 +35,4 @@ jobs:
           git config user.email "github-actions@github.com"
           git add deploy-trigger.txt
           git commit -m "force deploy to cloudflare pages"
-          git push
+          git push https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
